@@ -1525,7 +1525,9 @@
             pollInterval: null,
             timerInterval: null,
             currentHotSeatPerson: null,
-            roundNumber: 1
+            roundNumber: 1,
+            peerConnections: {},
+            signalingInterval: null
         };
 
         // ===== STORAGE KEY HELPERS =====
@@ -1534,14 +1536,14 @@
         // ===== STORAGE HELPERS =====
         async function loadData(key) {
             try {
-                const result = await window.storage.get(key, true);
-                return result ? JSON.parse(result.value) : null;
+                const value = localStorage.getItem(key);
+                return value ? JSON.parse(value) : null;
             } catch { return null; }
         }
 
         async function saveData(key, value) {
             try {
-                await window.storage.set(key, JSON.stringify(value), true);
+                localStorage.setItem(key, JSON.stringify(value));
                 return true;
             } catch { return false; }
         }
@@ -1683,6 +1685,9 @@
             ).join('');
             document.getElementById('waiting-q-count').textContent = room.questions.filter(q => q.round === room.round).length;
             updateTimer(room, 'room-timer-waiting');
+
+            // Start signaling to receive streams
+            startSignalingPoller();
 
             // If game started and this person is hot seat
             if (room.currentHotSeat === state.nickname) {
@@ -1837,6 +1842,9 @@
             document.getElementById('open-btn-container').style.display = 'block';
             document.getElementById('q-counter').textContent = `Q ${state.currentQuestionIdx + 1} / ${room.questions.length}`;
 
+            // Start WebRTC signaling
+            startSignalingPoller();
+
             // Queue
             renderHotSeatQueue(room);
         }
@@ -1933,6 +1941,9 @@
 
             document.getElementById('audience-answered-count').textContent = answered.length;
             updateTimer(room, 'room-timer-audience');
+
+            // Start signaling to receive streams from hot seat person
+            startSignalingPoller();
 
             // Current question
             if (current && !current.answered) {
@@ -2036,6 +2047,13 @@
             room.status = 'ended';
             await saveData(roomKey(state.roomCode, 'room'), room);
 
+            // Close peer connections
+            for (const peerId in state.peerConnections) {
+                state.peerConnections[peerId].close();
+            }
+            state.peerConnections = {};
+            clearInterval(state.signalingInterval);
+
             const answered = room.questions.filter(q => q.answered);
             document.getElementById('end-room-name').textContent = room.name;
             document.getElementById('end-rounds').textContent = room.round || 1;
@@ -2057,10 +2075,15 @@
             if (!state.micActive) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    state.localStream = stream;
+                    if (!state.localStream) {
+                        state.localStream = stream;
+                    } else {
+                        stream.getAudioTracks().forEach(t => state.localStream.addTrack(t));
+                    }
                     state.micActive = true;
                     btn.classList.add('active');
                     showToast('Mic on 🎙️', 'success');
+                    broadcastStreamToRoom();
                 } catch {
                     showToast('Mic access denied', 'fire');
                 }
@@ -2071,6 +2094,7 @@
                 state.micActive = false;
                 btn.classList.remove('active');
                 showToast('Mic off');
+                broadcastStreamToRoom();
             }
         }
 
@@ -2080,15 +2104,18 @@
             const video = document.getElementById('local-video');
             if (!state.camActive) {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } } });
                     state.camActive = true;
                     video.srcObject = stream;
                     preview.classList.add('active');
                     btn.classList.add('active');
-                    // Keep track to stop later
-                    if (!state.localStream) state.localStream = stream;
-                    else stream.getVideoTracks().forEach(t => state.localStream.addTrack(t));
+                    if (!state.localStream) {
+                        state.localStream = stream;
+                    } else {
+                        stream.getVideoTracks().forEach(t => state.localStream.addTrack(t));
+                    }
                     showToast('Camera on 📷', 'success');
+                    broadcastStreamToRoom();
                 } catch {
                     showToast('Camera access denied', 'fire');
                 }
@@ -2099,7 +2126,170 @@
                 btn.classList.remove('active');
                 state.camActive = false;
                 showToast('Camera off');
+                broadcastStreamToRoom();
             }
+        }
+
+        // ===== WEBRTC SIGNALING =====
+        async function createPeerConnection(remotePeerId) {
+            const config = {
+                iceServers: [
+                    { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }
+                ]
+            };
+            
+            const peerConn = new RTCPeerConnection(config);
+            state.peerConnections[remotePeerId] = peerConn;
+
+            // Add local stream tracks
+            if (state.localStream) {
+                state.localStream.getTracks().forEach(track => {
+                    peerConn.addTrack(track, state.localStream);
+                });
+            }
+
+            // Handle remote stream
+            peerConn.ontrack = (event) => {
+                console.log('Received remote track:', event.track.kind);
+                
+                // For the hot seat person's stream, play it in their own video element
+                // For audience members, create remote video elements
+                if (event.track.kind === 'video') {
+                    let videoEl = document.getElementById(`remote-video-${remotePeerId}`);
+                    if (!videoEl) {
+                        videoEl = document.createElement('video');
+                        videoEl.id = `remote-video-${remotePeerId}`;
+                        videoEl.autoplay = true;
+                        videoEl.playsinline = true;
+                        videoEl.style.cssText = 'max-width:100%;max-height:200px;border-radius:8px;margin-top:12px;';
+                        const container = document.getElementById('hotseat-header') || document.querySelector('#screen-audience');
+                        if (container) {
+                            container.appendChild(videoEl);
+                        }
+                    }
+                    if (!videoEl.srcObject) {
+                        videoEl.srcObject = new MediaStream();
+                    }
+                    videoEl.srcObject.addTrack(event.track);
+                }
+                if (event.track.kind === 'audio') {
+                    let audioEl = document.getElementById(`audio-${remotePeerId}`);
+                    if (!audioEl) {
+                        audioEl = document.createElement('audio');
+                        audioEl.id = `audio-${remotePeerId}`;
+                        audioEl.autoplay = true;
+                        audioEl.playsinline = true;
+                        document.body.appendChild(audioEl);
+                    }
+                    if (!audioEl.srcObject) {
+                        audioEl.srcObject = new MediaStream();
+                    }
+                    audioEl.srcObject.addTrack(event.track);
+                }
+            };
+
+            // Handle ICE candidates
+            peerConn.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const key = `hotseat-room-${state.roomCode}-signal-${state.nickname}-${remotePeerId}-ice`;
+                    const existing = localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : [];
+                    existing.push(event.candidate);
+                    localStorage.setItem(key, JSON.stringify(existing));
+                }
+            };
+
+            peerConn.onconnectionstatechange = () => {
+                console.log('Connection state:', peerConn.connectionState);
+            };
+
+            return peerConn;
+        }
+
+        async function broadcastStreamToRoom() {
+            const room = await loadData(roomKey(state.roomCode, 'room'));
+            if (!room) return;
+
+            for (const participant of room.participants) {
+                if (participant.nickname === state.nickname) continue;
+                
+                if (!state.peerConnections[participant.id]) {
+                    const peerConn = await createPeerConnection(participant.id);
+                    const offer = await peerConn.createOffer();
+                    await peerConn.setLocalDescription(offer);
+                    
+                    const key = `hotseat-room-${state.roomCode}-signal-${state.nickname}-${participant.id}-offer`;
+                    localStorage.setItem(key, JSON.stringify(offer));
+                }
+            }
+        }
+
+        function startSignalingPoller() {
+            clearInterval(state.signalingInterval);
+            state.signalingInterval = setInterval(async () => {
+                if (!state.roomCode) return;
+                const room = await loadData(roomKey(state.roomCode, 'room'));
+                if (!room) return;
+
+                // Process offers from others
+                for (const participant of room.participants) {
+                    if (participant.nickname === state.nickname) continue;
+                    
+                    const offerKey = `hotseat-room-${state.roomCode}-signal-${participant.nickname}-${state.pid || 'creator'}-offer`;
+                    const offerData = localStorage.getItem(offerKey);
+                    
+                    if (offerData && !state.peerConnections[participant.id]) {
+                        try {
+                            const offer = JSON.parse(offerData);
+                            const peerConn = await createPeerConnection(participant.id);
+                            await peerConn.setRemoteDescription(new RTCSessionDescription(offer));
+                            const answer = await peerConn.createAnswer();
+                            await peerConn.setLocalDescription(answer);
+                            
+                            const answerKey = `hotseat-room-${state.roomCode}-signal-${state.nickname}-${participant.id}-answer`;
+                            localStorage.setItem(answerKey, JSON.stringify(answer));
+                        } catch (e) {
+                            console.error('Error processing offer:', e);
+                        }
+                    }
+
+                    // Process answers
+                    const answerKey = `hotseat-room-${state.roomCode}-signal-${participant.nickname}-${state.pid || 'creator'}-answer`;
+                    const answerData = localStorage.getItem(answerKey);
+                    
+                    if (answerData && state.peerConnections[participant.id]) {
+                        try {
+                            const peerConn = state.peerConnections[participant.id];
+                            if (peerConn.remoteDescription === null) {
+                                const answer = JSON.parse(answerData);
+                                await peerConn.setRemoteDescription(new RTCSessionDescription(answer));
+                            }
+                        } catch (e) {
+                            console.error('Error processing answer:', e);
+                        }
+                    }
+
+                    // Process ICE candidates
+                    const iceKey = `hotseat-room-${state.roomCode}-signal-${participant.nickname}-${state.pid || 'creator'}-ice`;
+                    const iceCandidates = localStorage.getItem(iceKey);
+                    
+                    if (iceCandidates && state.peerConnections[participant.id]) {
+                        try {
+                            const candidates = JSON.parse(iceCandidates);
+                            const peerConn = state.peerConnections[participant.id];
+                            for (const candidate of candidates) {
+                                try {
+                                    await peerConn.addIceCandidate(new RTCIceCandidate(candidate));
+                                } catch (e) {
+                                    console.error('Error adding ICE candidate:', e);
+                                }
+                            }
+                            localStorage.removeItem(iceKey);
+                        } catch (e) {
+                            console.error('Error processing ICE candidates:', e);
+                        }
+                    }
+                }
+            }, 1000);
         }
 
         // ===== POLLING (simulate real-time) =====
@@ -2141,6 +2331,16 @@
             if (confirm('Leave the room? Game will continue for others.')) {
                 clearInterval(state.pollInterval);
                 clearInterval(state.timerInterval);
+                clearInterval(state.signalingInterval);
+                // Close all peer connections
+                for (const peerId in state.peerConnections) {
+                    state.peerConnections[peerId].close();
+                }
+                state.peerConnections = {};
+                // Stop all media tracks
+                if (state.localStream) {
+                    state.localStream.getTracks().forEach(t => t.stop());
+                }
                 showScreen('screen-landing');
             }
         }
