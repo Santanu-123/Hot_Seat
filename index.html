@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Hot Seat</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --fire: #ff4500;
+            --ember: #ff8c00;
+            --gold: #ffd700;
+            --dark: #0a0a0a;
+            --surface: #111111;
+            --card: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #f0f0f0;
+            --muted: #666;
+            --green: #00ff88;
+            --blue: #00aaff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(255, 69, 0, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 140, 0, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* ===== LANDING ===== */
+        #screen-landing {
+            text-align: center;
+            gap: 0;
+        }
+
+        .logo-block {
+            margin-bottom: 48px;
+            animation: fadeDown 0.8s ease forwards;
+        }
+
+        .logo-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(72px, 18vw, 140px);
+            line-height: 0.9;
+            background: linear-gradient(135deg, var(--fire), var(--ember), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
+            filter: drop-shadow(0 0 40px rgba(255, 69, 0, 0.4));
+        }
+
+        .logo-sub {
+            font-size: 13px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .landing-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 340px;
+            animation: fadeUp 0.8s 0.2s ease both;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover::after {
+            opacity: 0.08;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-fire {
+            background: linear-gradient(135deg, var(--fire), var(--ember));
+            color: white;
+            box-shadow: 0 4px 24px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--fire);
+            color: var(--fire);
+        }
+
+        .btn-ghost {
+            background: var(--card);
+            color: var(--muted);
+            font-size: 13px;
+            padding: 12px;
+        }
+
+        .btn-sm {
+            padding: 10px 20px;
+            font-size: 12px;
+        }
+
+        .btn-green {
+            background: var(--green);
+            color: var(--dark);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-blue {
+            background: var(--blue);
+            color: var(--dark);
+            box-shadow: 0 4px 20px rgba(0, 170, 255, 0.3);
+        }
+
+        /* ===== INPUTS ===== */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .input-label {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        input,
+        textarea {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            width: 100%;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--fire);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--muted);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .card-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: var(--fire);
+            margin-bottom: 20px;
+        }
+
+        /* ===== ROOM CODE ===== */
+        .room-code-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: 12px;
+            color: var(--gold);
+            text-align: center;
+            padding: 24px;
+            background: rgba(255, 215, 0, 0.06);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 8px;
+            margin: 16px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .room-code-display:hover {
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+        }
+
+        .copy-hint {
+            font-size: 11px;
+            color: var(--muted);
+            text-align: center;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===== PARTICIPANTS LIST ===== */
+        .participants-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .participant-chip {
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .participant-chip.hot {
+            border-color: var(--fire);
+            color: var(--fire);
+        }
+
+        .participant-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        /* ===== DICE ===== */
+        #screen-dice {
+            gap: 32px;
+            text-align: center;
+        }
+
+        .dice-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 48px;
+            letter-spacing: 3px;
+            color: var(--muted);
+        }
+
+        .dice-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            perspective: 600px;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+
+        .dice.rolling {
+            animation: diceRoll 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes diceRoll {
+            0% {
+                transform: rotateX(0) rotateY(0) rotateZ(0);
+            }
+
+            25% {
+                transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg);
+            }
+
+            50% {
+                transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg);
+            }
+
+            75% {
+                transform: rotateX(900deg) rotateY(540deg) rotateZ(270deg);
+            }
+
+            100% {
+                transform: rotateX(1080deg) rotateY(720deg) rotateZ(360deg);
+            }
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--card), var(--surface));
+            border: 2px solid var(--fire);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            color: var(--fire);
+            backface-visibility: hidden;
+            box-shadow: inset 0 0 20px rgba(255, 69, 0, 0.1);
+        }
+
+        .dice-face:nth-child(1) {
+            transform: rotateY(0deg) translateZ(100px);
+        }
+
+        .dice-face:nth-child(2) {
+            transform: rotateY(180deg) translateZ(100px);
+        }
+
+        .dice-face:nth-child(3) {
+            transform: rotateY(90deg) translateZ(100px);
+        }
+
+        .dice-face:nth-child(4) {
+            transform: rotateY(-90deg) translateZ(100px);
+        }
+
+        .dice-face:nth-child(5) {
+            transform: rotateX(90deg) translateZ(100px);
+        }
+
+        .dice-face:nth-child(6) {
+            transform: rotateX(-90deg) translateZ(100px);
+        }
+
+        .dice-result {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: var(--gold);
+            min-height: 40px;
+        }
+
+        /* ===== HOT SEAT VIEW ===== */
+        #screen-hotseat {
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px;
+            width: 100%;
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+
+        .hotseat-header {
+            text-align: center;
+            width: 100%;
+        }
+
+        .on-fire-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(255, 69, 0, 0.15);
+            border: 1px solid rgba(255, 69, 0, 0.4);
+            border-radius: 100px;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--fire);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .hotseat-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(40px, 10vw, 72px);
+            background: linear-gradient(135deg, var(--fire), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== QUESTION ENVELOPE ===== */
+        .question-envelope {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .question-envelope.sealed {
+            border-color: var(--ember);
+            cursor: pointer;
+        }
+
+        .envelope-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .q-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 2px;
+        }
+
+        .q-status {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-weight: 700;
+        }
+
+        .q-status.sealed {
+            background: rgba(255, 140, 0, 0.15);
+            color: var(--ember);
+        }
+
+        .q-status.open {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--green);
+        }
+
+        .q-status.answered {
+            background: rgba(0, 170, 255, 0.1);
+            color: var(--blue);
+        }
+
+        .envelope-body {
+            padding: 20px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .sealed-overlay {
+            text-align: center;
+            padding: 24px;
+            color: var(--muted);
+        }
+
+        .sealed-overlay .seal-icon {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .sealed-hint {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===== ANSWER AREA ===== */
+        .answer-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .emoji-reactions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+        }
+
+        .emoji-btn:hover {
+            border-color: var(--fire);
+            transform: scale(1.1);
+        }
+
+        .emoji-btn.selected {
+            border-color: var(--fire);
+            background: rgba(255, 69, 0, 0.15);
+            transform: scale(1.05);
+        }
+
+        .reaction-label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* ===== QUESTIONS QUEUE ===== */
+        .questions-queue {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .queue-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .queue-item.current {
+            border-color: var(--fire);
+            box-shadow: 0 0 16px rgba(255, 69, 0, 0.15);
+        }
+
+        .queue-item.answered {
+            opacity: 0.5;
+        }
+
+        .queue-q-text {
+            font-size: 14px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .queue-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* ===== SUBMIT QUESTION ===== */
+        .submit-question-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* ===== MEDIA CONTROLS ===== */
+        .media-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .media-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--card);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .media-btn:hover {
+            border-color: var(--fire);
+        }
+
+        .media-btn.active {
+            background: rgba(255, 69, 0, 0.2);
+            border-color: var(--fire);
+        }
+
+        .media-btn.active::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        .video-preview {
+            width: 120px;
+            height: 90px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            position: relative;
+        }
+
+        .video-preview.active {
+            display: block;
+        }
+
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== CREATOR DASHBOARD ===== */
+        #screen-creator {
+            justify-content: flex-start;
+            padding-top: 32px;
+            gap: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .creator-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .creator-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 100px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .creator-section {
+            width: 100%;
+        }
+
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .creator-q-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 8px;
+        }
+
+        .creator-q-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .meta-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .meta-tag.asker {
+            background: rgba(0, 170, 255, 0.15);
+            color: var(--blue);
+        }
+
+        .meta-tag.target {
+            background: rgba(255, 69, 0, 0.15);
+            color: var(--fire);
+        }
+
+        .meta-tag.round {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold);
+        }
+
+        .creator-q-text {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .creator-answer {
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* ===== TIMER BAR ===== */
+        .timer-bar {
+            width: 100%;
+            max-width: 480px;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fire), var(--gold));
+            transition: width 1s linear;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            z-index: 999;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .toast.fire {
+            border-color: var(--fire);
+            color: var(--fire);
+        }
+
+        /* ===== NAV ===== */
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        /* ===== DIVIDER ===== */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+            max-width: 480px;
+        }
+
+        /* ===== AUDIENCE VIEW ===== */
+        #screen-audience {
+            justify-content: flex-start;
+            padding-top: 32px;
+            gap: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .current-q-card {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(255, 140, 0, 0.05));
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .current-q-label {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--fire);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .current-q-text {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .answer-display {
+            padding: 12px 16px;
+            background: var(--surface);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text);
+            font-style: italic;
+            border-left: 2px solid var(--fire);
+        }
+
+        .reaction-display {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .reaction-count {
+            padding: 4px 12px;
+            background: var(--surface);
+            border-radius: 100px;
+            font-size: 14px;
+        }
+
+        /* ===== WAITING ROOM ===== */
+        #screen-waiting {
+            gap: 24px;
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .waiting-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 48px;
+            letter-spacing: 3px;
+            color: var(--text);
+        }
+
+        /* ===== END SCREEN ===== */
+        #screen-end {
+            text-align: center;
+            gap: 24px;
+            max-width: 500px;
+        }
+
+        .end-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 72px;
+            background: linear-gradient(135deg, var(--fire), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        .stat-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 12px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 36px;
+            color: var(--fire);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* ===== ROLE SELECT ===== */
+        .role-select {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .role-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .role-card:hover {
+            border-color: var(--fire);
+            background: rgba(255, 69, 0, 0.05);
+        }
+
+        .role-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .role-name {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .role-desc {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px 16px;
+            color: var(--muted);
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            color: var(--text);
+            border-color: var(--text);
+        }
+
+        .spicy-highlight {
+            background: linear-gradient(135deg, rgba(255, 69, 0, 0.15), rgba(255, 140, 0, 0.1));
+            border: 1px solid rgba(255, 140, 0, 0.4);
+            border-radius: 8px;
+            padding: 16px 20px;
+            width: 100%;
+        }
+
+        .spicy-label {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--ember);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .timer-countdown {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+
+        .room-expired {
+            color: var(--fire);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            .stat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stat-num {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== LANDING ===== -->
+    <div id="screen-landing" class="screen active">
+        <div class="logo-block">
+            <div class="logo-title">HOT<br>SEAT</div>
+            <div class="logo-sub">Anonymous · Async · Unfiltered</div>
+        </div>
+        <div class="landing-actions">
+            <button class="btn btn-fire" onclick="showScreen('screen-create')">🔥 Create Room</button>
+            <button class="btn btn-outline" onclick="showScreen('screen-join')">🚪 Join Room</button>
+        </div>
+    </div>
+
+    <!-- ===== CREATE ROOM ===== -->
+    <div id="screen-create" class="screen">
+        <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
+        <div class="card fade-in">
+            <div class="card-title">Create Room</div>
+            <div class="input-group" style="margin-bottom:16px">
+                <div class="input-label">Your Name (Creator)</div>
+                <input type="text" id="creator-name" placeholder="e.g. Arjun" maxlength="20">
+            </div>
+            <div class="input-group" style="margin-bottom:24px">
+                <div class="input-label">Room Name</div>
+                <input type="text" id="room-name" placeholder="e.g. Friday Night Chaos" maxlength="30">
+            </div>
+            <button class="btn btn-fire" style="width:100%" onclick="createRoom()">Generate Room Code →</button>
+        </div>
+    </div>
+
+    <!-- ===== JOIN ROOM ===== -->
+    <div id="screen-join" class="screen">
+        <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
+        <div class="card fade-in">
+            <div class="card-title">Join Room</div>
+            <div class="input-group" style="margin-bottom:16px">
+                <div class="input-label">Room Code</div>
+                <input type="text" id="join-code" placeholder="e.g. XKQZ" maxlength="4"
+                    style="text-transform:uppercase;letter-spacing:8px;font-family:'JetBrains Mono',monospace;font-size:24px;text-align:center"
+                    oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="input-group" style="margin-bottom:24px">
+                <div class="input-label">Your Nickname</div>
+                <input type="text" id="join-nickname" placeholder="e.g. ShadowKing99" maxlength="20">
+            </div>
+            <button class="btn btn-outline" style="width:100%" onclick="joinRoom()">Enter the Room →</button>
+        </div>
+    </div>
+
+    <!-- ===== WAITING ROOM (for joiners) ===== -->
+    <div id="screen-waiting" class="screen">
+        <button class="back-btn" onclick="showScreen('screen-landing')">← Leave</button>
+        <div class="waiting-title">WAITING<br>ROOM</div>
+        <div style="max-width:400px;width:100%">
+            <div class="section-label" style="text-align:center;margin-bottom:16px">Who's here</div>
+            <div class="participants-list" id="waiting-participants" style="justify-content:center"></div>
+        </div>
+        <div style="max-width:400px;width:100%;text-align:center">
+            <div class="timer-countdown" id="room-timer-waiting">Room expires in: --:--:--</div>
+            <div style="margin-top:16px;color:var(--muted);font-size:13px">Submit questions while you wait!</div>
+        </div>
+
+        <div style="width:100%;max-width:400px">
+            <div class="submit-question-form">
+                <div class="input-label">Submit Anonymous Question</div>
+                <textarea id="waiting-question-input" placeholder="Ask something spicy... they won't know it's you 😈"
+                    maxlength="200"></textarea>
+                <button class="btn btn-outline btn-sm" onclick="submitQuestion('waiting')">Submit Question 🔥</button>
+            </div>
+        </div>
+
+        <div style="font-size:13px;color:var(--muted);text-align:center">
+            <span id="waiting-q-count">0</span> questions submitted so far
+        </div>
+    </div>
+
+    <!-- ===== CREATOR LOBBY ===== -->
+    <div id="screen-creator-lobby" class="screen">
+        <button class="back-btn" onclick="confirmLeave()">← Leave</button>
+        <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:20px;padding-top:48px">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                <div>
+                    <div class="creator-badge" style="display:inline-flex;margin-bottom:8px">👑 Creator</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px"
+                        id="lobby-room-name">Room</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="timer-countdown" id="room-timer-creator">--:--:--</div>
+                    <div
+                        style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px">
+                        remaining</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-label">Share this code</div>
+                <div class="room-code-display" id="lobby-room-code" onclick="copyCode()">----</div>
+                <div class="copy-hint">tap to copy</div>
+            </div>
+
+            <div>
+                <div class="section-label">Participants (<span id="lobby-count">0</span>)</div>
+                <div class="participants-list" id="lobby-participants"></div>
+            </div>
+
+            <div>
+                <div class="section-label">Questions (<span id="lobby-q-count">0</span> submitted)</div>
+                <div id="creator-q-preview" style="display:flex;flex-direction:column;gap:8px"></div>
+            </div>
+
+            <button class="btn btn-fire" onclick="startDiceRoll()" id="start-btn" disabled style="opacity:0.5">
+                🎲 Roll Dice — Start Game
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== DICE ROLL ===== -->
+    <div id="screen-dice" class="screen">
+        <div class="dice-title">WHO'S ON THE<br><span style="color:var(--fire)">HOT SEAT?</span></div>
+
+        <div class="dice-container">
+            <div class="dice" id="the-dice">
+                <div class="dice-face">🎲</div>
+                <div class="dice-face">🔥</div>
+                <div class="dice-face">😈</div>
+                <div class="dice-face">💀</div>
+                <div class="dice-face">⚡</div>
+                <div class="dice-face">🌶️</div>
+            </div>
+        </div>
+
+        <div class="dice-result" id="dice-result">Press to roll</div>
+        <div class="participants-list" id="dice-participants" style="justify-content:center;max-width:400px"></div>
+        <button class="btn btn-fire" id="roll-btn" onclick="rollDice()">🎲 ROLL THE DICE</button>
+        <button class="btn btn-outline btn-sm" id="proceed-btn" onclick="proceedToHotSeat()" style="display:none">Let's
+            Go 🔥</button>
+    </div>
+
+    <!-- ===== HOT SEAT VIEW ===== -->
+    <div id="screen-hotseat" class="screen">
+        <button class="back-btn" onclick="showScreen('screen-creator-lobby')">← Lobby</button>
+
+        <div class="hotseat-header">
+            <div class="on-fire-badge">🔥 On The Hot Seat</div>
+            <div class="hotseat-name" id="hotseat-person-name">Name</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px">
+                <div class="media-controls">
+                    <button class="media-btn" id="mic-btn" onclick="toggleMic()" title="Toggle Mic">🎙️</button>
+                    <button class="media-btn" id="cam-btn" onclick="toggleCam()" title="Toggle Camera">📷</button>
+                </div>
+                <div class="video-preview" id="video-preview">
+                    <video id="local-video" autoplay muted playsinline></video>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider" style="max-width:600px"></div>
+
+        <!-- Current Question -->
+        <div style="width:100%;max-width:600px">
+            <div class="section-label">Current Question</div>
+            <div class="question-envelope" id="current-envelope">
+                <div class="envelope-header">
+                    <div class="q-number" id="q-counter">Q 0 / 0</div>
+                    <div class="q-status sealed" id="q-status">SEALED</div>
+                </div>
+                <div class="envelope-body">
+                    <div class="sealed-overlay" id="sealed-overlay">
+                        <span class="seal-icon">📩</span>
+                        <div class="sealed-hint">Tap to open</div>
+                    </div>
+                    <div id="open-content" style="display:none">
+                        <div class="question-text" id="current-question-text"></div>
+                        <div class="answer-area">
+                            <div class="reaction-label">React</div>
+                            <div class="emoji-reactions" id="emoji-reactions">
+                                <button class="emoji-btn" onclick="selectEmoji(this,'😂')">😂</button>
+                                <button class="emoji-btn" onclick="selectEmoji(this,'💀')">💀</button>
+                                <button class="emoji-btn" onclick="selectEmoji(this,'🔥')">🔥</button>
+                                <button class="emoji-btn" onclick="selectEmoji(this,'😳')">😳</button>
+                                <button class="emoji-btn" onclick="selectEmoji(this,'🙄')">🙄</button>
+                                <button class="emoji-btn" onclick="selectEmoji(this,'❤️')">❤️</button>
+                            </div>
+                            <textarea id="answer-input" placeholder="Type your answer here..."
+                                maxlength="500"></textarea>
+                            <div style="display:flex;gap:10px">
+                                <button class="btn btn-fire" style="flex:1" onclick="submitAnswer()">Submit Answer
+                                    ✓</button>
+                                <button class="btn btn-ghost btn-sm" onclick="skipQuestion()">Skip →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:12px;text-align:center" id="open-btn-container">
+                <button class="btn btn-outline" onclick="openEnvelope()" id="open-btn">📩 Open Question</button>
+            </div>
+        </div>
+
+        <!-- Question Queue -->
+        <div style="width:100%;max-width:600px">
+            <div class="section-label">All Questions</div>
+            <div class="questions-queue" id="hotseat-q-queue"></div>
+        </div>
+
+        <!-- Submit new question -->
+        <div style="width:100%;max-width:600px">
+            <div class="section-label">Add Question for Next Round</div>
+            <div class="submit-question-form">
+                <textarea id="hotseat-new-q" placeholder="Submit a question for next person..."
+                    maxlength="200"></textarea>
+                <button class="btn btn-ghost btn-sm" onclick="submitQuestion('hotseat')">Submit →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== AUDIENCE VIEW ===== -->
+    <div id="screen-audience" class="screen">
+        <button class="back-btn" onclick="showScreen('screen-waiting')">← Back</button>
+
+        <div style="width:100%;max-width:500px;display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                    <div class="section-label">On The Hot Seat</div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--fire)"
+                        id="audience-hotseat-name">—</div>
+                </div>
+                <div class="timer-countdown" id="room-timer-audience"></div>
+            </div>
+
+            <!-- Current Q being answered -->
+            <div class="current-q-card" id="audience-current-q" style="display:none">
+                <div class="current-q-label">🔥 Current Question</div>
+                <div class="current-q-text" id="audience-q-text">—</div>
+                <div class="answer-display" id="audience-answer-display" style="display:none"></div>
+                <div class="reaction-display" id="audience-reaction-display"></div>
+            </div>
+
+            <div id="audience-no-q" style="color:var(--muted);font-size:14px;text-align:center;padding:24px">
+                Waiting for hot seat person to open a question...
+            </div>
+
+            <!-- Submit a question -->
+            <div class="submit-question-form">
+                <div class="section-label">Submit Anonymous Question</div>
+                <textarea id="audience-q-input" placeholder="They won't know it's you... 😈" maxlength="200"></textarea>
+                <button class="btn btn-outline btn-sm" onclick="submitQuestion('audience')">Submit 🔥</button>
+            </div>
+
+            <!-- Past Q&As -->
+            <div>
+                <div class="section-label">Answered (<span id="audience-answered-count">0</span>)</div>
+                <div id="audience-answered-list" style="display:flex;flex-direction:column;gap:8px"></div>
+            </div>
+
+            <div>
+                <div class="section-label">Who's Here</div>
+                <div class="participants-list" id="audience-participants"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CREATOR FULL VIEW ===== -->
+    <div id="screen-creator" class="screen">
+        <button class="back-btn" onclick="showScreen('screen-creator-lobby')">← Lobby</button>
+
+        <div class="creator-header" style="max-width:700px;width:100%;flex-wrap:wrap;gap:12px;padding-top:48px">
+            <div>
+                <div class="creator-badge">👑 Creator — Full View</div>
+                <div style="font-size:13px;color:var(--muted);margin-top:4px">You see everything. They don't.</div>
+            </div>
+            <div class="timer-countdown" id="creator-full-timer">--:--:--</div>
+        </div>
+
+        <div class="nav-tabs" style="max-width:700px">
+            <button class="nav-tab active" onclick="creatorTab('questions')">Questions</button>
+            <button class="nav-tab" onclick="creatorTab('people')">People</button>
+            <button class="nav-tab" onclick="creatorTab('stats')">Stats</button>
+        </div>
+
+        <div id="creator-tab-questions" style="width:100%;max-width:700px;display:flex;flex-direction:column;gap:10px">
+            <div id="creator-all-questions"></div>
+        </div>
+
+        <div id="creator-tab-people" style="width:100%;max-width:700px;display:none">
+            <div id="creator-people-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <div id="creator-tab-stats" style="width:100%;max-width:700px;display:none">
+            <div class="stat-grid" id="creator-stats-grid">
+                <div class="stat-item"><span class="stat-num" id="stat-total-q">0</span>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat-item"><span class="stat-num" id="stat-answered">0</span>
+                    <div class="stat-label">Answered</div>
+                </div>
+                <div class="stat-item"><span class="stat-num" id="stat-players">0</span>
+                    <div class="stat-label">Players</div>
+                </div>
+            </div>
+            <div style="margin-top:20px">
+                <div class="section-label">🌶️ Spiciest Question</div>
+                <div class="spicy-highlight" id="spicy-q">No answers yet</div>
+            </div>
+        </div>
+
+        <button class="btn btn-fire" style="max-width:700px;width:100%" onclick="endGame()">End Game & See
+            Results</button>
+    </div>
+
+    <!-- ===== END SCREEN ===== -->
+    <div id="screen-end" class="screen">
+        <div class="end-title">GAME<br>OVER</div>
+        <div id="end-room-name" style="font-size:18px;color:var(--muted);letter-spacing:2px"></div>
+
+        <div class="stat-grid" style="max-width:400px;width:100%">
+            <div class="stat-item"><span class="stat-num" id="end-rounds">0</span>
+                <div class="stat-label">Rounds</div>
+            </div>
+            <div class="stat-item"><span class="stat-num" id="end-answered">0</span>
+                <div class="stat-label">Answered</div>
+            </div>
+            <div class="stat-item"><span class="stat-num" id="end-players">0</span>
+                <div class="stat-label">Players</div>
+            </div>
+        </div>
+
+        <div style="max-width:400px;width:100%">
+            <div class="section-label" style="text-align:center">🌶️ Spiciest Question</div>
+            <div class="spicy-highlight" id="end-spicy">None yet</div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:400px;width:100%">
+            <button class="btn btn-outline btn-sm" onclick="showScreen('screen-landing')">New Game</button>
+            <button class="btn btn-ghost btn-sm" onclick="showCreatorFullView()">Full Log 👑</button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== STATE =====
+        let state = {
+            role: null, // 'creator' | 'player' | 'hotseat'
+            roomCode: null,
+            creatorName: null,
+            nickname: null,
+            currentQuestionIdx: 0,
+            selectedEmoji: null,
+            micActive: false,
+            camActive: false,
+            localStream: null,
+            pollInterval: null,
+            timerInterval: null,
+            currentHotSeatPerson: null,
+            roundNumber: 1
+        };
+
+        // ===== STORAGE KEY HELPERS =====
+        const roomKey = (code, suffix) => `hotseat-room-${code}-${suffix}`;
+
+        // ===== STORAGE HELPERS =====
+        async function loadData(key) {
+            try {
+                const result = await window.storage.get(key, true);
+                return result ? JSON.parse(result.value) : null;
+            } catch { return null; }
+        }
+
+        async function saveData(key, value) {
+            try {
+                await window.storage.set(key, JSON.stringify(value), true);
+                return true;
+            } catch { return false; }
+        }
+
+        // ===== ROOM HELPERS =====
+        function genCode() {
+            return Math.random().toString(36).substring(2, 6).toUpperCase();
+        }
+
+        function getRoomExpiry(createdAt) {
+            return createdAt + (24 * 60 * 60 * 1000);
+        }
+
+        function isExpired(room) {
+            return Date.now() > getRoomExpiry(room.createdAt);
+        }
+
+        function formatTimeLeft(ms) {
+            if (ms <= 0) return '00:00:00';
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // ===== SCREEN NAVIGATION =====
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ===== TOAST =====
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // ===== CREATE ROOM =====
+        async function createRoom() {
+            const name = document.getElementById('creator-name').value.trim();
+            const roomName = document.getElementById('room-name').value.trim();
+            if (!name) return showToast('Enter your name', 'fire');
+            if (!roomName) return showToast('Enter a room name', 'fire');
+
+            const code = genCode();
+            const room = {
+                code,
+                name: roomName,
+                creatorName: name,
+                creatorId: 'creator_' + Date.now(),
+                createdAt: Date.now(),
+                status: 'waiting', // waiting | active | ended
+                participants: [{ id: 'creator_' + Date.now(), nickname: name, isCreator: true, realName: name }],
+                questions: [],
+                currentHotSeat: null,
+                currentQuestionIdx: 0,
+                round: 1,
+                answeredQuestions: []
+            };
+
+            await saveData(roomKey(code, 'room'), room);
+
+            state.role = 'creator';
+            state.roomCode = code;
+            state.creatorName = name;
+            state.nickname = name;
+
+            loadCreatorLobby(room);
+            showScreen('screen-creator-lobby');
+            startPolling();
+        }
+
+        // ===== JOIN ROOM =====
+        async function joinRoom() {
+            const code = document.getElementById('join-code').value.trim().toUpperCase();
+            const nickname = document.getElementById('join-nickname').value.trim();
+            if (!code || code.length !== 4) return showToast('Enter 4-letter code', 'fire');
+            if (!nickname) return showToast('Enter a nickname', 'fire');
+
+            const room = await loadData(roomKey(code, 'room'));
+            if (!room) return showToast('Room not found!', 'fire');
+            if (isExpired(room)) return showToast('Room has expired', 'fire');
+
+            // Add participant
+            const pid = 'p_' + Date.now();
+            room.participants.push({ id: pid, nickname, isCreator: false, realName: nickname });
+            await saveData(roomKey(code, 'room'), room);
+
+            state.role = 'player';
+            state.roomCode = code;
+            state.nickname = nickname;
+            state.pid = pid;
+
+            loadWaitingRoom(room);
+            showScreen('screen-waiting');
+            startPolling();
+        }
+
+        // ===== CREATOR LOBBY =====
+        function loadCreatorLobby(room) {
+            document.getElementById('lobby-room-name').textContent = room.name;
+            document.getElementById('lobby-room-code').textContent = room.code;
+            document.getElementById('lobby-count').textContent = room.participants.length;
+            document.getElementById('lobby-q-count').textContent = room.questions.length;
+
+            const pl = document.getElementById('lobby-participants');
+            pl.innerHTML = room.participants.map(p =>
+                `<div class="participant-chip"><div class="dot"></div>${p.nickname}${p.isCreator ? ' 👑' : ''}</div>`
+            ).join('');
+
+            const qp = document.getElementById('creator-q-preview');
+            qp.innerHTML = room.questions.slice(0, 3).map(q =>
+                `<div class="creator-q-item" style="font-size:13px">
+      <div style="display:flex;gap:8px;margin-bottom:4px">
+        <span class="meta-tag asker">From: ${q.askerNickname}</span>
+        <span class="meta-tag round">R${q.round || 1}</span>
+      </div>
+      ${q.text}
+    </div>`
+            ).join('') + (room.questions.length > 3 ? `<div style="color:var(--muted);font-size:12px;padding:8px">+${room.questions.length - 3} more...</div>` : '');
+
+            const startBtn = document.getElementById('start-btn');
+            if (room.participants.length >= 2) {
+                startBtn.disabled = false;
+                startBtn.style.opacity = '1';
+            }
+
+            // Timer
+            updateTimer(room, 'room-timer-creator');
+        }
+
+        // ===== WAITING ROOM =====
+        function loadWaitingRoom(room) {
+            const pl = document.getElementById('waiting-participants');
+            pl.innerHTML = room.participants.map(p =>
+                `<div class="participant-chip"><div class="dot"></div>${p.nickname}</div>`
+            ).join('');
+            document.getElementById('waiting-q-count').textContent = room.questions.filter(q => q.round === room.round).length;
+            updateTimer(room, 'room-timer-waiting');
+
+            // If game started and this person is hot seat
+            if (room.currentHotSeat === state.nickname) {
+                loadHotSeatView(room);
+                showScreen('screen-hotseat');
+            } else if (room.status === 'active') {
+                loadAudienceView(room);
+                showScreen('screen-audience');
+            }
+        }
+
+        // ===== UPDATE TIMER =====
+        function updateTimer(room, elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                const left = getRoomExpiry(room.createdAt) - Date.now();
+                if (left <= 0) {
+                    el.textContent = 'ROOM EXPIRED';
+                    el.className = 'room-expired';
+                    clearInterval(state.timerInterval);
+                } else {
+                    el.textContent = `Room expires in: ${formatTimeLeft(left)}`;
+                }
+            }, 1000);
+        }
+
+        // ===== COPY CODE =====
+        function copyCode() {
+            navigator.clipboard.writeText(state.roomCode).catch(() => { });
+            showToast('Code copied! 🔗', 'success');
+        }
+
+        // ===== SUBMIT QUESTION =====
+        async function submitQuestion(source) {
+            const inputMap = {
+                waiting: 'waiting-question-input',
+                audience: 'audience-q-input',
+                hotseat: 'hotseat-new-q'
+            };
+            const el = document.getElementById(inputMap[source]);
+            const text = el.value.trim();
+            if (!text) return showToast('Write a question first!', 'fire');
+
+            const room = await loadData(roomKey(state.roomCode, 'room'));
+            if (!room) return showToast('Room not found');
+
+            room.questions.push({
+                id: 'q_' + Date.now(),
+                text,
+                askerId: state.pid || 'creator',
+                askerNickname: state.nickname,
+                round: room.round,
+                answered: false,
+                answer: null,
+                emoji: null,
+                skipped: false
+            });
+
+            await saveData(roomKey(state.roomCode, 'room'), room);
+            el.value = '';
+            showToast('Question submitted! 🔥', 'success');
+            document.getElementById('waiting-q-count') && (document.getElementById('waiting-q-count').textContent = room.questions.filter(q => q.round === room.round).length);
+        }
+
+        // ===== DICE ROLL =====
+        function startDiceRoll() {
+            showScreen('screen-dice');
+            const room_cached = loadData(roomKey(state.roomCode, 'room'));
+            // show participants
+            room_cached.then(room => {
+                if (!room) return;
+                const pl = document.getElementById('dice-participants');
+                pl.innerHTML = room.participants.map(p =>
+                    `<div class="participant-chip">${p.nickname}</div>`
+                ).join('');
+            });
+        }
+
+        async function rollDice() {
+            const room = await loadData(roomKey(state.roomCode, 'room'));
+            if (!room) return;
+
+            const dice = document.getElementById('the-dice');
+            const btn = document.getElementById('roll-btn');
+            const result = document.getElementById('dice-result');
+
+            btn.disabled = true;
+            dice.classList.remove('rolling');
+            void dice.offsetWidth;
+            dice.classList.add('rolling');
+            result.textContent = 'Rolling...';
+
+            // Highlight each participant one by one
+            const chips = document.getElementById('dice-participants').querySelectorAll('.participant-chip');
+            let idx = 0;
+            const interval = setInterval(() => {
+                chips.forEach(c => c.style.borderColor = '');
+                chips[idx % chips.length].style.borderColor = 'var(--fire)';
+                idx++;
+            }, 150);
+
+            setTimeout(async () => {
+                clearInterval(interval);
+                chips.forEach(c => c.style.borderColor = '');
+
+                // Pick random participant
+                const picked = room.participants[Math.floor(Math.random() * room.participants.length)];
+                result.textContent = `🔥 ${picked.nickname.toUpperCase()} IS ON THE HOT SEAT!`;
+                result.style.color = 'var(--fire)';
+
+                // Highlight the picked
+                chips.forEach(c => {
+                    if (c.textContent.trim() === picked.nickname) {
+                        c.style.borderColor = 'var(--fire)';
+                        c.style.color = 'var(--fire)';
+                    }
+                });
+
+                state.currentHotSeatPerson = picked.nickname;
+
+                // Update room
+                room.currentHotSeat = picked.nickname;
+                room.status = 'active';
+                room.currentQuestionIdx = 0;
+                await saveData(roomKey(state.roomCode, 'room'), room);
+
+                document.getElementById('proceed-btn').style.display = 'block';
+                btn.disabled = false;
+            }, 2200);
+        }
+
+        function proceedToHotSeat() {
+            showScreen('screen-hotseat');
+            loadData(roomKey(state.roomCode, 'room')).then(room => {
+                if (room) loadHotSeatView(room);
+            });
+        }
+
+        // ===== HOT SEAT VIEW =====
+        function loadHotSeatView(room) {
+            document.getElementById('hotseat-person-name').textContent = room.currentHotSeat;
+            const questions = room.questions.filter(q => !q.answered && !q.skipped);
+            state.currentQuestionIdx = room.currentQuestionIdx || 0;
+
+            // Reset envelope
+            document.getElementById('sealed-overlay').style.display = 'flex';
+            document.getElementById('open-content').style.display = 'none';
+            document.getElementById('q-status').textContent = 'SEALED';
+            document.getElementById('q-status').className = 'q-status sealed';
+            document.getElementById('open-btn-container').style.display = 'block';
+            document.getElementById('q-counter').textContent = `Q ${state.currentQuestionIdx + 1} / ${room.questions.length}`;
+
+            // Queue
+            renderHotSeatQueue(room);
+        }
+
+        function renderHotSeatQueue(room) {
+            const queue = document.getElementById('hotseat-q-queue');
+            queue.innerHTML = room.questions.map((q, i) => `
+    <div class="queue-item ${i === state.currentQuestionIdx ? 'current' : ''} ${q.answered ? 'answered' : ''}">
+      <div class="queue-q-text">${q.answered ? '✓ ' : q.skipped ? '→ ' : ''}${q.text.substring(0, 80)}${q.text.length > 80 ? '...' : ''}</div>
+      <div class="queue-meta">${q.askerNickname}</div>
+    </div>
+  `).join('');
+        }
+
+        function openEnvelope() {
+            loadData(roomKey(state.roomCode, 'room')).then(room => {
+                if (!room) return;
+                const q = room.questions[state.currentQuestionIdx];
+                if (!q) return showToast('No more questions!');
+
+                document.getElementById('sealed-overlay').style.display = 'none';
+                document.getElementById('open-content').style.display = 'block';
+                document.getElementById('current-question-text').textContent = q.text;
+                document.getElementById('q-status').textContent = 'OPEN';
+                document.getElementById('q-status').className = 'q-status open';
+                document.getElementById('open-btn-container').style.display = 'none';
+                document.getElementById('answer-input').value = '';
+                state.selectedEmoji = null;
+                document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+            });
+        }
+
+        function selectEmoji(btn, emoji) {
+            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            state.selectedEmoji = emoji;
+        }
+
+        async function submitAnswer() {
+            const answerText = document.getElementById('answer-input').value.trim();
+            if (!answerText) return showToast('Write an answer!', 'fire');
+
+            const room = await loadData(roomKey(state.roomCode, 'room'));
+            if (!room) return;
+
+            const q = room.questions[state.currentQuestionIdx];
+            if (!q) return;
+
+            q.answered = true;
+            q.answer = answerText;
+            q.emoji = state.selectedEmoji;
+            q.answeredAt = Date.now();
+            room.currentQuestionIdx = state.currentQuestionIdx + 1;
+
+            await saveData(roomKey(state.roomCode, 'room'), room);
+            showToast('Answer submitted ✓', 'success');
+
+            state.currentQuestionIdx++;
+
+            // Next question
+            if (state.currentQuestionIdx < room.questions.length) {
+                loadHotSeatView(room);
+                document.getElementById('q-counter').textContent = `Q ${state.currentQuestionIdx + 1} / ${room.questions.length}`;
+                // Reset envelope
+                document.getElementById('sealed-overlay').style.display = 'flex';
+                document.getElementById('open-content').style.display = 'none';
+                document.getElementById('q-status').textContent = 'SEALED';
+                document.getElementById('q-status').className = 'q-status sealed';
+                document.getElementById('open-btn-container').style.display = 'block';
+            } else {
+                showToast('All questions answered! 🎉', 'success');
+                renderHotSeatQueue(room);
+            }
+        }
+
+        async function skipQuestion() {
+            const room = await loadData(roomKey(state.roomCode, 'room'));
+            if (!room) return;
+            const q = room.questions[state.currentQuestionIdx];
+            if (q) { q.skipped = true; }
+            room.currentQuestionIdx = state.currentQuestionIdx + 1;
+            await saveData(roomKey(state.roomCode, 'room'), room);
+            state.currentQuestionIdx++;
+            loadHotSeatView(room);
+            showToast('Question skipped →');
+        }
+
+        // ===== AUDIENCE VIEW =====
+        function loadAudienceView(room) {
+            document.getElementById('audience-hotseat-name').textContent = room.currentHotSeat || '—';
+
+            const answered = room.questions.filter(q => q.answered);
+            const current = room.questions[room.currentQuestionIdx];
+
+            document.getElementById('audience-answered-count').textContent = answered.length;
+            updateTimer(room, 'room-timer-audience');
+
+            // Current question
+            if (current && !current.answered) {
+                document.getElementById('audience-current-q').style.display = 'block';
+                document.getElementById('audience-no-q').style.display = 'none';
+                document.getElementById('audience-q-text').textContent = current.text;
+                document.getElementById('audience-answer-display').style.display = 'none';
+                document.getElementById('audience-reaction-display').innerHTML = '';
+            } else if (current && current.answered) {
+                document.getElementById('audience-current-q').style.display = 'block';
+                document.getElementById('audience-no-q').style.display = 'none';
+                document.getElementById('audience-q-text').textContent = current.text;
+                document.getElementById('audience-answer-display').style.display = 'block';
+                document.getElementById('audience-answer-display').textContent = `"${current.answer}" ${current.emoji || ''}`;
+            } else {
+                document.getElementById('audience-current-q').style.display = 'none';
+                document.getElementById('audience-no-q').style.display = 'block';
+            }
+
+            // Answered list
+            const list = document.getElementById('audience-answered-list');
+            list.innerHTML = answered.map(q => `
+    <div class="creator-q-item">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">${q.text}</div>
+      <div style="font-size:13px;color:var(--muted);font-style:italic">"${q.answer}" ${q.emoji || ''}</div>
+    </div>
+  `).join('') || `<div style="color:var(--muted);font-size:13px">No answers yet</div>`;
+
+            // Participants
+            const pl = document.getElementById('audience-participants');
+            pl.innerHTML = room.participants.map(p =>
+                `<div class="participant-chip ${p.nickname === room.currentHotSeat ? 'hot' : ''}"><div class="dot"></div>${p.nickname}${p.nickname === room.currentHotSeat ? ' 🔥' : ''}</div>`
+            ).join('');
+        }
+
+        // ===== CREATOR FULL VIEW =====
+        function showCreatorFullView() {
+            showScreen('screen-creator');
+            loadData(roomKey(state.roomCode, 'room')).then(room => {
+                if (!room) return;
+                updateTimer(room, 'creator-full-timer');
+                renderCreatorView(room);
+            });
+        }
+
+        function renderCreatorView(room) {
+            // Questions tab
+            const allQ = document.getElementById('creator-all-questions');
+            allQ.innerHTML = room.questions.map((q, i) => `
+    <div class="creator-q-item fade-in">
+      <div class="creator-q-meta">
+        <span class="meta-tag asker">👤 ${q.askerNickname}</span>
+        <span class="meta-tag round">Round ${q.round || 1}</span>
+        ${q.answered ? '<span class="meta-tag" style="background:rgba(0,255,136,0.1);color:var(--green)">✓ Answered</span>' : ''}
+        ${q.skipped ? '<span class="meta-tag" style="background:rgba(100,100,100,0.2);color:var(--muted)">→ Skipped</span>' : ''}
+      </div>
+      <div class="creator-q-text">Q${i + 1}: ${q.text}</div>
+      ${q.answered ? `<div class="creator-answer">"${q.answer}" ${q.emoji || ''}</div>` : ''}
+    </div>
+  `).join('') || '<div style="color:var(--muted);padding:16px;font-size:14px">No questions yet</div>';
+
+            // People tab
+            const people = document.getElementById('creator-people-list');
+            people.innerHTML = room.participants.map(p => `
+    <div class="queue-item ${p.nickname === room.currentHotSeat ? 'current' : ''}">
+      <div>
+        <div style="font-weight:700;font-size:15px">${p.nickname} ${p.isCreator ? '👑' : ''} ${p.nickname === room.currentHotSeat ? '🔥' : ''}</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">ID: ${p.id}</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">
+        ${room.questions.filter(q => q.askerId === p.id).length} questions asked
+      </div>
+    </div>
+  `).join('');
+
+            // Stats
+            const answered = room.questions.filter(q => q.answered);
+            document.getElementById('stat-total-q').textContent = room.questions.length;
+            document.getElementById('stat-answered').textContent = answered.length;
+            document.getElementById('stat-players').textContent = room.participants.length;
+
+            // Spiciest
+            const spicy = answered.sort((a, b) => (b.emoji ? 1 : 0) - (a.emoji ? 1 : 0))[0];
+            document.getElementById('spicy-q').innerHTML = spicy
+                ? `<div class="spicy-label">🌶️ Spiciest</div><div style="font-weight:700;margin-bottom:6px">${spicy.text}</div><div style="font-size:13px;color:var(--muted)">"${spicy.answer}" ${spicy.emoji || ''}</div>`
+                : 'No answers yet';
+        }
+
+        function creatorTab(tab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('creator-tab-questions').style.display = tab === 'questions' ? 'flex' : 'none';
+            document.getElementById('creator-tab-people').style.display = tab === 'people' ? 'block' : 'none';
+            document.getElementById('creator-tab-stats').style.display = tab === 'stats' ? 'block' : 'none';
+        }
+
+        // ===== END GAME =====
+        async function endGame() {
+            const room = await loadData(roomKey(state.roomCode, 'room'));
+            if (!room) return;
+            room.status = 'ended';
+            await saveData(roomKey(state.roomCode, 'room'), room);
+
+            const answered = room.questions.filter(q => q.answered);
+            document.getElementById('end-room-name').textContent = room.name;
+            document.getElementById('end-rounds').textContent = room.round || 1;
+            document.getElementById('end-answered').textContent = answered.length;
+            document.getElementById('end-players').textContent = room.participants.length;
+
+            const spicy = answered[0];
+            document.getElementById('end-spicy').innerHTML = spicy
+                ? `<div class="spicy-label">🌶️ Most memorable</div><div style="font-weight:700">${spicy.text}</div>`
+                : 'Play more to find out!';
+
+            showScreen('screen-end');
+            clearInterval(state.pollInterval);
+        }
+
+        // ===== WEBRTC MEDIA =====
+        async function toggleMic() {
+            const btn = document.getElementById('mic-btn');
+            if (!state.micActive) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    state.localStream = stream;
+                    state.micActive = true;
+                    btn.classList.add('active');
+                    showToast('Mic on 🎙️', 'success');
+                } catch {
+                    showToast('Mic access denied', 'fire');
+                }
+            } else {
+                if (state.localStream) {
+                    state.localStream.getAudioTracks().forEach(t => t.stop());
+                }
+                state.micActive = false;
+                btn.classList.remove('active');
+                showToast('Mic off');
+            }
+        }
+
+        async function toggleCam() {
+            const btn = document.getElementById('cam-btn');
+            const preview = document.getElementById('video-preview');
+            const video = document.getElementById('local-video');
+            if (!state.camActive) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    state.camActive = true;
+                    video.srcObject = stream;
+                    preview.classList.add('active');
+                    btn.classList.add('active');
+                    // Keep track to stop later
+                    if (!state.localStream) state.localStream = stream;
+                    else stream.getVideoTracks().forEach(t => state.localStream.addTrack(t));
+                    showToast('Camera on 📷', 'success');
+                } catch {
+                    showToast('Camera access denied', 'fire');
+                }
+            } else {
+                if (state.localStream) state.localStream.getVideoTracks().forEach(t => t.stop());
+                video.srcObject = null;
+                preview.classList.remove('active');
+                btn.classList.remove('active');
+                state.camActive = false;
+                showToast('Camera off');
+            }
+        }
+
+        // ===== POLLING (simulate real-time) =====
+        function startPolling() {
+            clearInterval(state.pollInterval);
+            state.pollInterval = setInterval(async () => {
+                if (!state.roomCode) return;
+                const room = await loadData(roomKey(state.roomCode, 'room'));
+                if (!room) return;
+
+                const currentScreen = document.querySelector('.screen.active')?.id;
+
+                if (currentScreen === 'screen-creator-lobby') {
+                    loadCreatorLobby(room);
+                } else if (currentScreen === 'screen-waiting') {
+                    if (room.status === 'active') {
+                        if (room.currentHotSeat === state.nickname) {
+                            loadHotSeatView(room);
+                            showScreen('screen-hotseat');
+                        } else {
+                            loadAudienceView(room);
+                            showScreen('screen-audience');
+                        }
+                    } else {
+                        loadWaitingRoom(room);
+                    }
+                } else if (currentScreen === 'screen-audience') {
+                    loadAudienceView(room);
+                } else if (currentScreen === 'screen-hotseat') {
+                    // Only refresh queue, not the open question
+                    renderHotSeatQueue(room);
+                } else if (currentScreen === 'screen-creator') {
+                    renderCreatorView(room);
+                }
+            }, 3000);
+        }
+
+        function confirmLeave() {
+            if (confirm('Leave the room? Game will continue for others.')) {
+                clearInterval(state.pollInterval);
+                clearInterval(state.timerInterval);
+                showScreen('screen-landing');
+            }
+        }
+
+        // Handle page visibility for polling efficiency
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && state.roomCode) {
+                startPolling();
+            }
+        });
+    </script>
+</body>
+
+</html>
